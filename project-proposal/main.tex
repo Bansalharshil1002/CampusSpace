@@ -1,0 +1,242 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper, top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{parskip}
+\usepackage{hyperref}
+\usepackage{ragged2e}
+
+\definecolor{headingblue}{RGB}{31,73,125}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{headingblue}}
+  {\thesection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.6em}{0.8em}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{headingblue}}
+  {\thesubsection}{0.6em}{}
+\titlespacing*{\subsection}{0pt}{1.2em}{0.6em}
+
+\setlist[itemize]{leftmargin=1.5em, itemsep=0.4em, topsep=0.4em}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=headingblue,
+  urlcolor=headingblue,
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+
+% ---------- Title block ----------
+\begin{center}
+    {\Huge \bfseries CampusSpace}\\[0.4em]
+    {\Large A Live Classroom Status Web Application for the Department}\\[0.3em]
+    {\large \textit{Project Proposal for UCS503}}\\[0.3em]
+    {\large Submitted to: Anushka}\\[0.2em]
+    {\large Thapar Institute of Engineering and Technology (TIET)}
+\end{center}
+
+\vspace{0.3em}
+\noindent\rule{\textwidth}{0.6pt}
+\vspace{0.5em}
+
+% ---------- 1. Higher-order goal ----------
+\section{Higher-Order Goal}
+
+\justifying
+This project seeks to improve everyday coordination within the department by replacing an outdated, one-directional information source, namely the static class timetable, with a live and trustworthy view of the actual status of each room. While the broader motivation is to strengthen communication and trust among students, class representatives (CRs), faculty, and department administration, the immediate engineering objective is to translate this motivation into a deployable, role-aware web application.
+
+% ---------- 2. Time-to-value ----------
+\section{Time-to-Value}
+
+Meaningful increments of value will be delivered early by first prototyping the core interaction loop, in which a class representative posts a status update and a student views it on the dashboard, and validating this loop with a small pilot group at the outset.
+
+Fast feedback will be prioritised over premature perfection through the use of weekly iterations and CI-backed automation, which together keep the release process low-friction.
+
+Success is defined in terms of what can be delivered and measured within the first iteration, namely a live dashboard together with CR-driven status updates, with subsequent refinement guided by user feedback.
+
+% ---------- 3. Problem statement ----------
+\section{Problem Statement}
+
+The existing class timetable is static in nature: it communicates what has been scheduled rather than what is actually taking place. It cannot indicate whether a teacher has arrived, whether a class has been cancelled or relocated, or whether a shared activity space is currently free. In the absence of this information, students are compelled to check in person or to rely on informal, word-of-mouth communication. The principal pain points may be summarised as follows:
+
+\begin{itemize}
+    \item \textbf{Fragmentation:} there is no single, authoritative source of truth for room status; the relevant information is dispersed across messaging groups and informal conversation, or is simply unavailable until a student physically checks the room.
+    \item \textbf{Low transparency:} students are unable to determine, at a glance, whether a class is in progress, cancelled, rescheduled, or awaiting the arrival of the teacher.
+    \item \textbf{Slow coordination:} no clear or trackable mechanism exists for a teacher to delegate the responsibility of reporting status, or for a student society to indicate that a shared activity space is in use.
+    \item \textbf{Poor accountability:} in the absence of a timestamped record of who changed what and when, incorrect or outdated statuses are difficult to trace or verify.
+\end{itemize}
+
+The relevance of this problem at present stems from the fact that students and staff already carry smartphones and rely on informal messaging groups; a modest, low-maintenance web application can therefore meaningfully reduce wasted trips and uncertainty at minimal infrastructural cost.
+
+% ---------- 4. Proposed solution ----------
+\section{Proposed Solution}
+
+\subsection{Overview}
+
+It is proposed that a web-based ``Room Status Tracker'' be developed for the department, comprising the following components:
+
+\begin{itemize}
+    \item \textbf{Live room dashboard:} a grid view of every CSED classroom, Lecture Theatre (LT), and the two shared Activity Spaces, each displaying its current status together with an ``updated X minutes ago'' timestamp.
+    \item \textbf{CR / Society Representative status panel:} enables the class representative for a given room, or the society representative for an activity space, to post a new status, for example teacher not yet arrived, class in progress, cancelled, rescheduled, free, or occupied by a society.
+    \item \textbf{Teacher panel:} enables a teacher to grant or revoke CR access for the classes they teach, and, optionally, to override a room's status directly.
+    \item \textbf{Admin / DOA dashboard:} enables department administration to manage all rooms, users, and assignments, and to override the status of any room.
+    \item \textbf{Passwordless authentication:} login is performed via institutional email using an OTP or magic link, thereby avoiding the overhead of password management.
+\end{itemize}
+
+\subsection{Core Workflow}
+
+\begin{itemize}
+    \item A teacher grants CR access to a student for the room(s) they teach; the student subsequently sees an ``Update Status'' panel scoped exclusively to that room.
+    \item The CR (or Society Representative) selects a status from a fixed set of options and submits it; the backend verifies that the underlying assignment remains active before accepting the update.
+    \item Every status change is appended to a per-room history log rather than overwriting the previous entry, thereby preserving a complete accountability trail.
+    \item Students and other viewers access the dashboard without requiring authentication, and see the most recent status of each room, refreshed through periodic polling at intervals of fifteen to thirty seconds.
+\end{itemize}
+
+\subsection{Operational Constraints for a Departmental, Low-Budget Setting}
+
+\begin{itemize}
+    \item The solution must remain usable on ordinary student devices through a responsive, mobile-first web interface.
+    \item Dependence on advanced research algorithms is to be avoided; emphasis is instead placed on correct role and permission enforcement, a clear workflow, and reliable state management.
+    \item The system is to be designed for deployment on free or low-cost managed hosting, with the frontend, backend, and database each hosted on an appropriate free-tier platform.
+\end{itemize}
+
+% ---------- 5. Solution approach ----------
+\section{Solution Approach}
+
+As this is an engineering course project, emphasis is placed on correct and scalable administrative and workflow logic rather than on algorithmic novelty; the only form of ``intelligence'' within the system consists of enumerated state and server-side permission checks.
+
+\subsection{Role and Permission Logic}
+
+\begin{itemize}
+    \item Four roles are defined, namely Student, CR, Society Representative, and Teacher/Admin, with permissions enforced entirely on the server side and never inferred from the frontend.
+    \item Per-room CR or Society Representative access is implemented as a scoped grant (a record in a RoomAssignment table) rather than as a single global flag, allowing a given user to serve as CR for exactly one room while remaining an ordinary student elsewhere.
+    \item The revocation of an assignment is verified against the database on every write operation, rather than being embedded in the JWT, so that changes to access take effect immediately rather than upon token expiry.
+\end{itemize}
+
+\subsection{Web Architecture}
+
+A standard three-tier web architecture is adopted, comprising two independently deployed applications that communicate over HTTPS/JSON:
+
+\begin{itemize}
+    \item \textbf{Frontend:} a React single-page application responsible for the dashboard, login flow, CR/Society Representative panels, and the administrative panel; it retains no business logic beyond the management of UI state.
+    \item \textbf{Backend API:} a FastAPI service that owns all business logic, including authentication, role and ownership checks, status updates, and administrative operations.
+    \item \textbf{Database:} a managed PostgreSQL instance storing users, rooms, assignments, and the append-only status history log.
+\end{itemize}
+
+\subsection{CI/CD and the Enablement of Rapid Delivery}
+
+A continuous integration and continuous deployment (CI/CD) pipeline will be used to build and test the backend automatically upon every change, to produce repeatable deployment artefacts for staging, and to enable safe and frequent releases of incremental features, such as notifications and administrative analytics, without destabilising the core dashboard.
+
+% ---------- 6. Evaluation criteria ----------
+\section{Evaluation Criteria}
+
+Success is defined through measurable metrics tied to the core workflow, each derived from timestamps already captured within the append-only status log.
+
+\subsection{Primary Evaluation Metric}
+
+\begin{itemize}
+    \item \textbf{Time-to-Visibility (TTV):} the elapsed time between a CR or teacher posting a status update and that update appearing on a student's dashboard.
+    \item Target: a TTV of no more than thirty seconds during the pilot, bounded by the dashboard's polling interval.
+    \item Attribution: measured as the difference between the StatusLog's created\_at timestamp and the timestamp of the next successful dashboard poll reflecting that update.
+\end{itemize}
+
+\subsection{Secondary Evaluation Metrics}
+
+\begin{itemize}
+    \item \textbf{Status accuracy:} the percentage of spot-checked room statuses, verified in person, that match what the dashboard reports.
+    \item \textbf{CR adoption:} the proportion of assigned CRs who post at least one status update per week during the pilot.
+    \item \textbf{User clarity:} student-reported clarity of the dashboard, captured through a simple five-point feedback question.
+    \item \textbf{Reliability:} the uptime of the staging and production backend during business hours, with a target of at least 99\% during the pilot window.
+\end{itemize}
+
+\subsection{Pilot Validation Plan}
+
+\begin{itemize}
+    \item CRs and Society Representatives will be recruited for a representative subset of CSED rooms, LTs, and both Activity Spaces, together with a small group of student volunteers.
+    \item The incidence of ``walk-over-and-check'' behaviour will be compared before and after rollout, using a short before/after survey administered to the pilot group.
+\end{itemize}
+
+% ---------- 7. Scalability ----------
+\section{Scalability}
+
+The proposed solution is designed to scale in both a theoretical and a practical sense.
+
+\subsection{Theoretical Scalability}
+
+\begin{itemize}
+    \item The frontend and backend are decoupled and communicate exclusively over a REST API.
+    \item The API follows a stateless design: the JWT carries only identity and a department-wide role, while per-room permissions are resolved on a per-request basis, allowing the API to be scaled horizontally without reliance on session affinity.
+    \item Indexed queries on the room and status-log tables keep dashboard polling computationally inexpensive as the history grows.
+\end{itemize}
+
+\subsection{Practical Deployability}
+
+\begin{itemize}
+    \item The system is intended to run on widely available managed hosting services: Vercel or Netlify for the frontend, Render or Railway for the backend, and Render Postgres or Neon for the database.
+    \item The schema is evolved safely through Alembic migrations rather than through manual changes.
+    \item The CI/CD pipeline enables repeatable staging and production deployments.
+\end{itemize}
+
+% ---------- 8. Engine availability heuristic ----------
+\section{Engine Availability Heuristic}
+
+A mature ecosystem of tools and services is available to support the implementation of this project as a web-based system, allowing the team to concentrate on the correctness of the workflow rather than on infrastructure development:
+
+\begin{itemize}
+    \item \textbf{Web framework for REST APIs:} FastAPI (Python), employing Pydantic validation together with automatically generated API documentation.
+    \item \textbf{Frontend framework:} React, used to implement the room grid, the CR and administrative panels, and the live-updating dashboard.
+    \item \textbf{Managed relational database:} PostgreSQL, accessed via the SQLAlchemy ORM and managed through Alembic migrations.
+    \item \textbf{Authentication approach:} stateless JWT (Bearer tokens), issued following verification of an institutional-email OTP or magic link.
+    \item \textbf{Transactional email service:} SendGrid or Resend, used solely for the delivery of OTP codes.
+    \item \textbf{Supporting infrastructure:} a CI runner and staging deployment target, together with a test framework for backend unit and integration testing.
+\end{itemize}
+
+% ---------- 9. Project scope and deliverables ----------
+\section{Project Scope and Deliverables}
+
+\subsection{Initial Deliverables}
+
+\begin{itemize}
+    \item College-email OTP login issuing a JWT.
+    \item A live room dashboard, requiring no login to view, grouped by building: CSED, LT, and Activity Space.
+    \item A CR/Society Representative status-update panel, scoped to the user's active RoomAssignment(s).
+    \item A teacher panel enabling the granting and revocation of CR access for classes taught by that teacher.
+    \item An append-only status history log per room, driving the ``updated X minutes ago'' display.
+    \item Continuous integration comprising backend build, unit testing, and linting, together with continuous deployment to staging.
+\end{itemize}
+
+\subsection{Subsequent Deliverables}
+
+\begin{itemize}
+    \item An Admin/DOA panel for managing users, rooms, and all assignments, with the ability to override any room's status.
+    \item Push and email notifications when a student's enrolled class is cancelled or rescheduled.
+    \item Analytics for the DOA, indicating which rooms and classes are most frequently cancelled.
+    \item Bulk semester-start CR assignment via CSV import.
+    \item Recurring or scheduled status updates, whereby a room is automatically marked ``Free'' once its scheduled end time has passed without a CR update.
+\end{itemize}
+
+% ---------- 10. Risks and mitigations ----------
+\section{Risks and Mitigations}
+
+\begin{itemize}
+    \item \textbf{Stale or incorrect statuses:} a CR may neglect to update a room's status once a class has concluded. Mitigation: the update action is reduced to a single tap, and a subsequent version will explore an automatic ``Free'' fallback once scheduling data becomes available.
+    \item \textbf{CR and teacher adoption:} the system is effective only if CRs actively post updates. Mitigation: a minimal-friction interface is provided, together with visibility into adoption through the CR-adoption metric, so that rooms with low engagement can be identified early.
+    \item \textbf{Security of role and permission checks:} as the frontend serves only to hide or display UI elements, all enforcement must occur server-side. Mitigation: every write operation re-verifies the RoomAssignment table rather than relying on the JWT payload, and JWTs are retained in memory rather than in local storage in order to reduce the risk of token theft through cross-site scripting (XSS).
+    \item \textbf{Data privacy:} the system stores institutional email addresses and a history of status changes. Mitigation: only the data necessary for operation is collected, no passwords are stored, and visibility into ``who changed what'' is restricted to Admin/DOA rather than exposed publicly.
+    \item \textbf{Operational issues during the pilot:} free-tier hosting can exhibit intermittent unreliability. Mitigation: a staging environment is used from an early stage, and uptime is monitored as a tracked evaluation metric throughout the pilot window.
+\end{itemize}
+
+% ---------- 11. Summary ----------
+\section{Summary}
+
+This project proposes a deployable, role-aware web platform that replaces the department's static timetable with a live and trustworthy view of room status. It satisfies the criteria of the course by emphasising time-to-value through rapid iterations centred on a single core loop, namely a CR update followed by student visibility, by employing CI/CD to support frequent and safe releases, and by defining measurable evaluation criteria, most notably time-to-visibility and status accuracy. The project remains focused on engineering workflow, correct permission enforcement, and readiness for scale, rather than on research-driven novelty.
+
+\end{document}

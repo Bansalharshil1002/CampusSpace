@@ -1,0 +1,28 @@
+---
+description: Design Document is the product/scope source of truth; prevent prototype scope creep
+alwaysApply: true
+---
+
+# Design Document Authority
+
+The **Room Status Tracker Prototype Design Document** (Prototype v0.1, September 2026) is the **primary source of truth** for product requirements and prototype scope.
+
+- Do **not** invent missing product requirements or silently change roles, statuses, workflows, or data model.
+- Prefer the Design Document over assumptions when requirements are unclear; ask before inventing.
+
+## Distinguish These Layers
+
+| Layer | Meaning | Agent behavior |
+| --- | --- | --- |
+| **Product requirements** | Live room status; assignment-scoped CR/Society updates; Teacher assigns CRs; Admin full control; timestamped history | Preserve terminology and intent |
+| **Current prototype scope** | Single Streamlit app + SQLite; simulated user/role selector; local validation only | Implement only this |
+| **Engineering rules** | Simple structure; UI / services / DB separation | Follow in code |
+| **Future / production** | FastAPI, React, PostgreSQL, JWT, college-email OTP, WebSockets, cloud | Do **not** implement now |
+
+## Explicitly Out of Scope (Do Not Add)
+
+FastAPI backend · React frontend · JWT auth · college-email OTP/magic links · external email · cloud deployment · production-grade security · WebSocket real-time updates · PostgreSQL
+
+## Prototype Stack (Only)
+
+**Python + Streamlit + SQLite.** One Streamlit app owns UI, session, role-based views, forms, business logic, and DB access. SQLite is the single source of truth for the prototype.

@@ -1,0 +1,39 @@
+---
+description: Prototype project structure, coding practices, and change discipline
+alwaysApply: true
+---
+
+# Engineering Practices
+
+## Before Changing Anything
+
+1. Inspect the existing repo (layout, `app.py`, `db/`, `services/`, `ui/`, seeds, README).
+2. Reuse and extend existing code; do **not** unnecessarily overwrite or restructure working work.
+3. Do **not** make architectural changes without a clear reason tied to the Design Document or an explicit user request.
+
+## Target Layout (when implementing)
+
+```text
+app.py
+db/          # database.py, schema.sql, seed.py
+services/    # room, status, assignment, user services
+ui/          # dashboard, cr_panel, teacher_panel, admin_panel
+data/        # room_status.db
+requirements.txt
+README.md
+```
+
+Keep business logic in `services/`, not buried only in Streamlit widgets, so migration later stays feasible.
+
+## Coding Rules
+
+- Keep implementation **simple and maintainable**; prefer clarity over cleverness.
+- Separate **UI**, **business logic**, and **database** operations where practical.
+- Reuse helpers/services instead of duplicating queries or validation.
+- Keep dependencies **minimal** (Streamlit + stdlib SQLite unless the user asks otherwise).
+- After meaningful changes: run/seed the app and verify the affected workflow (assign → update → view → revoke).
+- Do not expand into out-of-scope production tech (see design-source-of-truth rule).
+
+## Success Criteria (Prototype)
+
+Local seed → Teacher assigns CR → CR updates status → Student sees it + history → revoke assignment → CR blocked. Prove the product loop, not production infrastructure.

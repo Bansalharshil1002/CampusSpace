@@ -1,0 +1,49 @@
+---
+description: Roles, data model, statuses, and core workflows from the Design Document
+alwaysApply: true
+---
+
+# Domain Model & Workflows
+
+Preserve Design Document terminology exactly.
+
+## Roles & Permissions
+
+| Role | Prototype permissions |
+| --- | --- |
+| **Student** | View all room statuses |
+| **CR** | View all + update **assigned** classroom(s) only |
+| **Society Rep** | View all + update **assigned** Activity Space(s) only |
+| **Teacher** | View all + assign/revoke CRs + optional status override |
+| **Admin/DOA** | Full access: rooms, users, assignments, status overrides |
+
+CR/Society access is **assignment-based**, not global update rights.
+
+**Auth (prototype only):** no real auth — user/role selector stored in `st.session_state`.
+
+## Tables
+
+- `users` — id, name, email, role, created_at (`student` \| `cr` \| `teacher` \| `admin` \| `society_rep`)
+- `rooms` — id, name, building, floor, room_type, created_at
+- `room_assignments` — id, user_id, room_id, assignment_role, assigned_by, active, created_at (deactivate, do not hard-delete)
+- `status_logs` — id, room_id, status, note, updated_by, created_at (append-only; current status = latest log per room)
+
+## Statuses
+
+- **Classroom:** Teacher not arrived · Class ongoing · Cancelled · Changed · Free
+- **Activity Space:** Occupied · Open to all (optional note, e.g. society name)
+
+`room_type` controls which statuses are valid.
+
+## Core Loop to Preserve
+
+**Assign → Update → Persist → View → Track History**
+
+1. Teacher assigns Student as CR for a room → `room_assignments`
+2. CR updates status → new `status_logs` row
+3. Student sees status + history on Dashboard
+4. Teacher revokes assignment → CR can no longer update that room
+
+## UI Navigation (Prototype)
+
+Dashboard · My Updates (CR/Society) · Teacher Panel · Admin Panel — rooms grouped by building/floor with status, note, last updated, recent history.

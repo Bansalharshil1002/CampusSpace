@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: room-status-tracker-api
+    runtime: docker
+    region: oregon
+    plan: free
+    rootDir: after MST
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: room-status-tracker-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE_MINUTES
+        value: "10080"
+      - key: ALLOWED_EMAIL_DOMAIN
+        value: thapar.edu
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: ALLOW_PUBLIC_REGISTRATION
+        value: "false"
+      - key: ALLOW_EMAIL_AUTH
+        value: "false"
+      - key: ALLOW_DEV_AUTH
+        value: "false"
+      - key: EMAIL_BACKEND
+        value: disabled
+      - key: SEED_DEMO_USERS
+        value: "false"
+      - key: AUTH_RATE_LIMIT_PER_MINUTE
+        value: "20"
+
+databases:
+  - name: room-status-tracker-db
+    plan: free
+    databaseName: room_status

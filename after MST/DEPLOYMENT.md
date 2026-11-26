@@ -5,7 +5,7 @@ This deployment is a presentation demo, not a public campus rollout.
 - **Students:** sign in with real database password accounts created by the project team.
 - **CR / Teacher / DoAA/DoSAA:** use browser-local preview buttons on the sign-in page. Their changes stay in that browser and are never written to the shared database.
 - **No official email accounts, no public registration, no OTP sign-in, and no magic links.**
-- **Password reset uses a six-digit email code sent through Resend from a verified non-official domain.**
+- **Password reset uses a six-digit email code sent through Resend. Live delivery to student addresses requires a verified non-official sender domain; no such domain is available in this environment.**
 - **No Society Representative dashboard or demo role** is included because that dashboard was not built.
 
 ## What is deployed
@@ -19,6 +19,13 @@ This deployment is a presentation demo, not a public campus rollout.
 | Staff preview roles | Browser-local only | CR, Teacher, DoAA/DoSAA; not saved to the database |
 | Email | Resend | Six-digit password-reset codes only; email sign-in stays disabled |
 | Signup | Disabled | Accounts are created manually with `app.bootstrap` |
+
+### Current deployment status
+
+- Frontend: `https://room-status-tracker.ssingh38-be24.workers.dev` (password-reset UI deployed).
+- Backend: `https://room-status-tracker-api.onrender.com`, live on commit `322380d`.
+- Render environment: `EMAIL_BACKEND=resend`, `RESEND_API_KEY` set, `ALLOW_PASSWORD_RESET=true`, `ALLOW_EMAIL_AUTH=false`, `ALLOW_DEV_AUTH=false`, `ALLOW_PUBLIC_REGISTRATION=false`.
+- Sender: `EMAIL_FROM` is temporarily `Room Status Tracker <onboarding@resend.dev>`. Resend only permits this testing sender to deliver to the account owner, so **reset codes are not delivered to `@thapar.edu` recipients yet**. Replace it with a verified non-official domain before claiming the reset flow is live.
 
 ## 1. Deploy the backend
 
@@ -143,6 +150,7 @@ This hides OTP sign-in, magic-link sign-in and create account flows in the deplo
 5. Try **Create account** / email-code sign-in tabs — they should not be visible.
 6. Confirm **Forgot password?** is visible beside the password field.
 7. Enter a real student email and click **Forgot password?**; confirm the generic success message appears and the reset form opens.
+   - With the current testing sender, the response is generic but Resend rejects delivery to the student address. Steps 8–10 cannot be completed live until `EMAIL_FROM` uses a verified domain.
 8. Read the six-digit code from the Resend email, enter it with a new password and matching confirm password, then submit.
 9. Confirm the old password fails and the new password signs in successfully.
 10. Confirm reusing the same code fails.
@@ -166,7 +174,9 @@ This hides OTP sign-in, magic-link sign-in and create account flows in the deplo
 - Public registration stays disabled.
 - OTP and magic-link sign-in endpoints return `503`.
 - Password-reset endpoints are enabled only when `ALLOW_PASSWORD_RESET=true` and Resend is configured; otherwise they return `403` or `503`.
+- Email delivery failures are logged but still return the same generic confirmation, so the endpoint cannot be used to enumerate accounts.
 - Codes expire after 15 minutes, are hashed in the database and become single-use after a successful reset.
+- To activate live reset delivery, add a non-official domain you control to Resend, add its DNS records, set `EMAIL_FROM` to an address on that verified domain, and redeploy the backend. `onboarding@resend.dev` is only for sending to the Resend account owner.
 - No `dev_code` or `dev_token` is returned in production because `ALLOW_DEV_AUTH=false`.
 - Rate limiting is enabled in production at 20 auth attempts/minute/IP.
 - No official email sender or official staff/student email accounts are used.

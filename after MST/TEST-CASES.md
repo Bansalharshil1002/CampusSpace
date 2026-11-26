@@ -11,7 +11,7 @@
 | Branch | `main` |
 | Deployment type | Presentation-only controlled demo |
 
-Students use real database password accounts. CR, Teacher and DoAA/DoSAA use browser-local preview buttons only, so their demo changes are never written to the shared database. There is no public registration, no email-code sign-in, no magic-link sign-in and no Society Representative dashboard. Password reset is available through a six-digit email code sent from a non-official verified domain using Resend.
+Students use real database password accounts. CR, Teacher and DoAA/DoSAA use browser-local preview buttons only, so their demo changes are never written to the shared database. There is no public registration, no email-code sign-in, no magic-link sign-in and no Society Representative dashboard. Password reset is implemented with a six-digit email code through Resend; live delivery to student addresses requires a verified non-official sender domain, which is not available in this environment.  
 
 ---
 
@@ -370,14 +370,14 @@ Students use real database password accounts. CR, Teacher and DoAA/DoSAA use bro
 
 | Step | Action | Expected Result | Actual Result |
 | --- | --- | --- | --- |
-| 1 | Inspect backend email settings | `EMAIL_BACKEND=resend` with a verified non-official `EMAIL_FROM` | Pending Render Environment configuration |
+| 1 | Inspect backend email settings | `EMAIL_BACKEND=resend` with a verified non-official `EMAIL_FROM` | `EMAIL_BACKEND=resend`, Resend key and `ALLOW_PASSWORD_RESET=true` are live; `EMAIL_FROM` is still the Resend testing placeholder and cannot deliver to non-owner recipients |
 | 2 | Inspect sign-in page | No OTP sign-in or magic-link sign-in; “Forgot password?” is present | Verified on deployed Worker |
 | 3 | Inspect staff preview accounts | They are browser-local only | Verified |
 | 4 | Inspect role assignment | No Society Representative role | Verified |
 
 **Final Expected Result:** No official email sender, no public registration and no official staff accounts are used.  
-**Final Actual Result:** Passed.  
-**Status:** Pass
+**Final Actual Result:** No official sender is used. Verified non-official sender configuration remains pending because no domain is available.  
+**Status:** Pending
 
 ---
 
@@ -390,15 +390,16 @@ Students use real database password accounts. CR, Teacher and DoAA/DoSAA use bro
 | Step | Action | Expected Result | Actual Result |
 | --- | --- | --- | --- |
 | 1 | Open `/auth` while signed out | “Forgot password?” is visible beside the password field | Passed on deployed Worker |
-| 2 | Enter an issued student email and click “Forgot password?” | Generic confirmation is shown; a six-digit code is emailed | Local automated test passed; live email pending Render Environment |
+| 2 | Enter an issued student email and click “Forgot password?” | Generic confirmation is shown; a six-digit code is emailed | Deployed backend returns the generic confirmation; Resend rejects delivery to `@thapar.edu` from the testing sender until a verified domain is configured |
 | 3 | Open the reset form and enter an incorrect six-digit code | The code is rejected | Local automated test passed |
 | 4 | Enter the valid code, new password and matching confirm password | “Password updated” is shown and the form returns to sign-in | Local automated test passed |
 | 5 | Sign in with the old password | Sign-in fails | Local automated test passed |
 | 6 | Sign in with the new password | Sign-in succeeds | Local automated test passed |
 | 7 | Reuse the same code | The code is rejected as invalid or expired | Local automated test passed |
+| 8 | Trigger the request while email delivery fails | The same generic confirmation is returned and no account existence is revealed | Passed on deployed backend and local automated test |
 
 **Final Expected Result:** A student can reset a real database password using one six-digit email code, and that code works only once.  
-**Final Actual Result:** Local automated round-trip passed; production smoke test pending Resend configuration.  
+**Final Actual Result:** The UI, backend endpoints and Resend key are deployed; the local round-trip passes and production returns the generic response. Live code delivery to student addresses remains pending a verified sender domain.  
 **Status:** Pending
 
 ---
@@ -419,6 +420,7 @@ Students use real database password accounts. CR, Teacher and DoAA/DoSAA use bro
 | Console errors | Pass |
 | Auth hardening configuration | Pass |
 | “Forgot password?” visibility | Pass |
-| Email-code password reset | Pending production email configuration |
+| Password reset generic response | Pass |
+| Email-code password reset | Pending verified sender domain |
 
 Software Engineering – Dr Ghazy Assassa

@@ -20,7 +20,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { loadVisibleDemoAccount } from "@/lib/demo";
 import { DEFAULT_CAMPUS_ROOMS, normalizeRoomCode, roomKindLabel } from "@/lib/rooms";
-import { ROLE_LABEL, ROOM_TYPE_LABEL, timeAgo, type AppRole, type RoomType } from "@/lib/status";
+import { ROLE_LABEL, ROOM_TYPE_LABEL, type AppRole, type RoomType } from "@/lib/status";
 
 export const Route = createFileRoute("/_authenticated/manage")({
   beforeLoad: () => {
@@ -130,7 +130,7 @@ function MyRooms({ userId }: { userId: string | undefined }) {
       {can.data && list.length === 0 && (
         <p className="rounded-lg border bg-card p-6 text-muted-foreground">
           You don't have any rooms to update yet. Students can view the dashboard; a teacher or
-          admin can assign you as a CR or society rep.
+          admin can assign you as a CR.
         </p>
       )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -144,9 +144,7 @@ function MyRooms({ userId }: { userId: string | undefined }) {
               <span className="font-mono font-bold">{r.code}</span>
               <StatusBadge status={r.current_status} />
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {roomKindLabel(r)} · updated {timeAgo(r.status_updated_at)}
-            </p>
+            <p className="mt-2 text-xs text-muted-foreground">{roomKindLabel(r)}</p>
             <p className="mt-3 text-sm font-medium underline">Update status →</p>
           </button>
         ))}
@@ -233,8 +231,8 @@ function Assignments({ isAdmin }: { isAdmin: boolean }) {
         </Button>
       </form>
       <p className="text-xs text-muted-foreground">
-        Assigning a classroom/LT grants CR access; assigning an activity space grants Society Rep
-        access. The person must have signed in once.
+        Assigning a classroom or lecture theatre grants CR access. The person must have signed in
+        once.
       </p>
       <div className="overflow-x-auto rounded-lg border bg-card">
         <table className="w-full text-sm">
@@ -489,7 +487,7 @@ function RoomsAdmin() {
   );
 }
 
-const ROLES: AppRole[] = ["student", "cr", "society_rep", "teacher", "admin"];
+const ROLES: AppRole[] = ["student", "cr", "teacher", "admin"];
 
 function UsersAdmin({ selfId }: { selfId: string | undefined }) {
   const qc = useQueryClient();

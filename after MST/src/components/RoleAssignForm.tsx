@@ -23,7 +23,7 @@ import { findDemoAccountByEmail } from "@/lib/demo";
 import { ROLE_LABEL, type AppRole } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
-const ASSIGNABLE_ROLES: AppRole[] = ["student", "cr", "society_rep", "teacher", "admin"];
+const ASSIGNABLE_ROLES: AppRole[] = ["student", "cr", "teacher", "admin"];
 
 interface RoleAssignFormProps {
   /** Demo mode stores the assignment in localStorage so it works offline. */

@@ -97,9 +97,9 @@ const TYPES: (RoomKind | "all")[] = ["all", "classroom", "lab", "lt", "activity_
 const ROLE_TITLE: Record<AppRole, string> = {
   student: "Your campus, live",
   cr: "CR dashboard",
-  society_rep: "Society rep dashboard",
   teacher: "Teacher dashboard",
   admin: "DoAA / DoSAA dashboard",
+  society_rep: "Society rep dashboard",
 };
 
 function displayName(user: { email?: string; user_metadata?: unknown } | null): string {
@@ -353,8 +353,8 @@ function Dashboard() {
               <div>
                 <h2 className="text-lg font-semibold">Assign roles by email</h2>
                 <p className="text-sm text-muted-foreground">
-                  Make someone a CR, teacher, student, society rep or DoAA/DoSAA. The role is saved
-                  to the campus backend and applies the next time they sign in.
+                  Make someone a CR, teacher, student or DoAA/DoSAA. The role is saved to the campus
+                  backend and applies the next time they sign in.
                 </p>
               </div>
               {!isDemo && (
@@ -828,11 +828,6 @@ function RoleActions({ role }: { role: AppRole }) {
             </Link>
           </Button>
         </>
-      )}
-      {role === "society_rep" && (
-        <Button size="sm" variant="outline" asChild>
-          <Link to="/timetable">View timetable</Link>
-        </Button>
       )}
     </>
   );

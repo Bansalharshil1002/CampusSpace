@@ -54,7 +54,7 @@ export const CHAT_CHANNELS: ChatChannel[] = [
     label: "General",
     description: "Open channel for everyone signed in — questions and campus notices.",
     staffOnly: false,
-    roles: ["student", "cr", "teacher", "admin", "society_rep"],
+    roles: ["student", "cr", "teacher", "admin"],
     kind: "group",
   },
 ];

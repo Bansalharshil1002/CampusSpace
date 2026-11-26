@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -32,6 +33,8 @@ from app.security import (
     random_token,
     verify_secret,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -268,12 +271,17 @@ def forgot_password(
     if user:
         code = random_otp()
         issue_challenge(db, email, "password_reset", code, hours=0.25)
-        send_email(
-            email,
-            "Your Room Status Tracker password reset code",
-            f"Your password reset code is {code}. It expires in 15 minutes. "
-            "If you did not request this, ignore this email.",
-        )
+        try:
+            send_email(
+                email,
+                "Your Room Status Tracker password reset code",
+                f"Your password reset code is {code}. It expires in 15 minutes. "
+                "If you did not request this, ignore this email.",
+            )
+        except Exception:
+            # Keep the response identical whether or not delivery succeeds so
+            # the endpoint cannot be used to enumerate accounts.
+            logger.exception("Password reset email delivery failed for %s", email)
         dev = code if dev_details_enabled() else None
     return ChallengeOut(
         message="If an account exists for that email, a six-digit code has been sent.",

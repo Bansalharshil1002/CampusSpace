@@ -350,3 +350,20 @@ def test_password_reset_round_trip():
     new = client.post("/auth/login", json={"email": email, "password": "newpass123"})
     assert new.status_code == 200, new.text
     assert new.json()["user"]["email"] == email
+
+
+def test_password_reset_email_failure_still_returns_generic_response(monkeypatch):
+    email = "reset.delivery@thapar.edu"
+    client.post(
+        "/auth/register",
+        json={"name": "Reset Delivery", "email": email, "password": "oldpass123"},
+    )
+
+    def fail_delivery(*_args, **_kwargs):
+        raise RuntimeError("email provider unavailable")
+
+    monkeypatch.setattr("app.routers.auth.send_email", fail_delivery)
+
+    requested = client.post("/auth/forgot-password", json={"email": email})
+    assert requested.status_code == 200, requested.text
+    assert requested.json()["message"].startswith("If an account exists")

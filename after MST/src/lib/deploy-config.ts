@@ -1,3 +1,5 @@
+import type { AppRole } from "@/lib/status";
+
 type AuthMode = "full" | "password";
 
 function envValue(key: string): string | undefined {
@@ -19,10 +21,18 @@ export const authMode: AuthMode = envValue("VITE_AUTH_MODE") === "full" ? "full"
 export const allowEmailAuth = envBool("VITE_ALLOW_EMAIL_AUTH", authMode === "full");
 export const allowRegistration = envBool("VITE_ALLOW_REGISTRATION", authMode === "full");
 export const showLocalDemo = envBool("VITE_SHOW_LOCAL_DEMO", true);
+
+/** Production shows staff preview roles only; students sign in for real. */
+const defaultDemoRoles = import.meta.env.PROD ? "cr,teacher,admin" : "student,cr,teacher,admin";
+export const demoRoles = (envValue("VITE_DEMO_ROLES") ?? defaultDemoRoles)
+  .split(",")
+  .map((value) => value.trim().toLowerCase())
+  .filter(Boolean) as AppRole[];
+
 export const deploymentMode =
   envValue("VITE_DEPLOYMENT_MODE") ?? (import.meta.env.PROD ? "controlled-demo" : "development");
 export const deploymentNotice =
   envValue("VITE_DEPLOY_NOTICE") ??
   (import.meta.env.PROD
-    ? "Controlled demo — real accounts use a shared hosted database. Local demo roles stay in this browser."
+    ? "Controlled demo — students sign in with a real account. Staff roles are browser-local previews."
     : "");

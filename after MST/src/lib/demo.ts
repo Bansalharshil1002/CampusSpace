@@ -1,3 +1,4 @@
+import { demoRoles } from "@/lib/deploy-config";
 import { roomMatches } from "@/lib/rooms";
 import type { AppRole, RoomStatus } from "@/lib/status";
 import { DEMO_ACCOUNTS, type DemoAccount } from "@/lib/demo-accounts";
@@ -50,6 +51,25 @@ export function findDemoAccountByKey(value: string): DemoAccount | null {
   return byEmail ?? byPrefix ?? byId ?? byRole ?? null;
 }
 
+export function isDemoRoleVisible(role: AppRole): boolean {
+  return demoRoles.includes(role);
+}
+
+export function findVisibleDemoAccount(email: string, password: string): DemoAccount | null {
+  const account = findDemoAccount(email, password);
+  return account && isDemoRoleVisible(account.role) ? account : null;
+}
+
+export function visibleDemoAccounts(): DemoAccount[] {
+  return DEMO_ACCOUNTS.filter((account) => isDemoRoleVisible(account.role));
+}
+
+/** `?demo=` links must honour the deployed role allowlist. */
+export function findVisibleDemoAccountByKey(value: string): DemoAccount | null {
+  const account = findDemoAccountByKey(value);
+  return account && isDemoRoleVisible(account.role) ? account : null;
+}
+
 export function isDemoEmail(email: string): boolean {
   return findDemoAccountByEmail(email) !== null;
 }
@@ -74,6 +94,17 @@ export function clearDemoSession(): void {
   if (!canStore()) return;
   window.localStorage.removeItem(DEMO_SESSION_KEY);
   window.dispatchEvent(new CustomEvent(DEMO_EVENT));
+}
+
+/** Drop stale demo sessions whose role is hidden in this deployment. */
+export function loadVisibleDemoAccount(): DemoAccount | null {
+  const account = loadDemoAccount();
+  if (!account) return null;
+  if (!isDemoRoleVisible(account.role)) {
+    clearDemoSession();
+    return null;
+  }
+  return account;
 }
 
 export function demoCanUpdate(account: DemoAccount | null, roomCode: string): boolean {

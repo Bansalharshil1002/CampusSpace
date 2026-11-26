@@ -7,14 +7,14 @@ import {
 } from "@/lib/api";
 import { loadAnnouncements, saveAnnouncements, type Announcement } from "@/lib/announcements";
 import { CHAT_CHANNELS, loadMessages, saveMessages, type ChatMessage } from "@/lib/chat";
-import { loadDemoAccount } from "@/lib/demo";
+import { loadVisibleDemoAccount } from "@/lib/demo";
 import { saveTimetable, type TimetableEntry, type Weekday } from "@/lib/timetable";
 import type { AppRole } from "@/lib/status";
 
 const STAFF_ROLES: AppRole[] = ["cr", "teacher", "admin"];
 
 export function isRemoteSession(): boolean {
-  return typeof window !== "undefined" && !loadDemoAccount() && !!getToken();
+  return typeof window !== "undefined" && !loadVisibleDemoAccount() && !!getToken();
 }
 
 function toTimetableEntry(entry: ApiTimetableEntry): TimetableEntry {

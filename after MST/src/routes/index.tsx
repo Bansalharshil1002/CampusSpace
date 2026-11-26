@@ -27,8 +27,8 @@ import { useTimetable } from "@/hooks/use-timetable";
 import {
   clearDemoSession,
   demoCanUpdate,
-  findDemoAccountByKey,
-  loadDemoAccount,
+  findVisibleDemoAccountByKey,
+  loadVisibleDemoAccount,
   startDemoSession,
 } from "@/lib/demo";
 import { demoEffectiveRole } from "@/lib/demo-roles";
@@ -62,13 +62,13 @@ export const Route = createFileRoute("/")({
         ? null
         : new URLSearchParams(window.location.search).get("demo");
     if (demoKey) {
-      const account = findDemoAccountByKey(demoKey);
+      const account = findVisibleDemoAccountByKey(demoKey);
       if (account) {
         startDemoSession(account);
         return;
       }
     }
-    if (loadDemoAccount()) return;
+    if (loadVisibleDemoAccount()) return;
     const session = await api.me();
     if (!session?.user) throw redirect({ to: "/auth" });
   },

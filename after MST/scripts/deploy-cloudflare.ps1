@@ -16,8 +16,9 @@ $env:VITE_AUTH_MODE = "password"
 $env:VITE_ALLOW_EMAIL_AUTH = "false"
 $env:VITE_ALLOW_REGISTRATION = "false"
 $env:VITE_SHOW_LOCAL_DEMO = "true"
+$env:VITE_DEMO_ROLES = "cr,teacher,admin"
 $env:VITE_DEPLOYMENT_MODE = "controlled-demo"
-$env:VITE_DEPLOY_NOTICE = "Controlled demo - real accounts use a shared hosted database. Local demo roles stay in this browser."
+$env:VITE_DEPLOY_NOTICE = "Controlled demo - students sign in with a real account. Staff roles are browser-local previews."
 $env:RST_WORKER_NAME = $WorkerName
 
 npm run build:cloudflare

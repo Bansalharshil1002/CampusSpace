@@ -1,17 +1,17 @@
 # CampusSpace — Room Status Tracker
 
-A room availability dashboard built as a student software engineering project. The app helps students, class representatives, society representatives, teachers, and the DoAA office see which campus rooms are free, occupied, or reserved, and keep timetable information in one place.
+A room availability dashboard built as a student software engineering project. The app helps students, class representatives, teachers, and the DoAA/DoSAA office see which campus rooms are free, occupied, or reserved, and keep timetable information in one place.
 
 ## Features
 
-- Role-based dashboards for Student, CR, Society Representative, Teacher, and DoAA/DoSAA
+- Role-based dashboards for Student, CR, Teacher, and DoAA/DoSAA
 - Live room status board with building, room number, floor, capacity, and room type
 - Timetable viewing and personal timetable overrides
 - Announcements with audience targeting and unread tracking
 - Class scheduling available to the DoAA/DoSAA role
 - Staff-only chat and AI assistant pages
-- Browser-local demo roles for exploring the UI without changing shared data
-- Backend-controlled login with a shared database for the hosted demo
+- Browser-local staff preview roles (CR, Teacher, DoAA/DoSAA) for exploring the UI without changing shared data
+- Backend-controlled password login with a shared database for real student accounts
 
 ## Tech stack
 
@@ -83,7 +83,7 @@ python -m pytest -q
 
 ## Controlled demo deployment
 
-The hosted version is a controlled demo, not a public campus rollout. It uses real database accounts with password login, but public registration, OTP, magic links, and password reset are disabled.
+The hosted version is a controlled demo, not a public campus rollout. Students sign in with real database password accounts. CR, Teacher and DoAA/DoSAA use browser-local preview buttons, so their demo changes are not shared with students. Public registration, OTP, magic links, and password reset are disabled.
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full Render + Cloudflare deployment and account bootstrap steps.
 

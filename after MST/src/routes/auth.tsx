@@ -16,12 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  DEMO_ACCOUNTS,
   clearDemoSession,
-  findDemoAccount,
-  findDemoAccountByKey,
-  loadDemoAccount,
+  findVisibleDemoAccount,
+  findVisibleDemoAccountByKey,
+  loadVisibleDemoAccount,
   startDemoSession,
+  visibleDemoAccounts,
   type DemoAccount,
 } from "@/lib/demo";
 import { demoEffectiveRole } from "@/lib/demo-roles";
@@ -111,7 +111,7 @@ function AuthPage() {
     let cancelled = false;
 
     if (link.demoKey) {
-      const account = findDemoAccountByKey(link.demoKey);
+      const account = findVisibleDemoAccountByKey(link.demoKey);
       if (account) {
         enterDemo(account);
         return;
@@ -157,7 +157,7 @@ function AuthPage() {
       return;
     }
 
-    if (loadDemoAccount()) {
+    if (loadVisibleDemoAccount()) {
       void navigate({ to: "/", replace: true });
       return;
     }
@@ -189,7 +189,7 @@ function AuthPage() {
       );
       return;
     }
-    const demo = findDemoAccount(clean, password);
+    const demo = findVisibleDemoAccount(clean, password);
     if (demo) {
       enterDemo(demo);
       return;
@@ -681,14 +681,14 @@ function AuthPage() {
           {showLocalDemo && (
             <section className="mt-6 rounded-lg border border-dashed p-4">
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Demo accounts
+                Staff preview roles
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                No backend needed. Pick a role to preview its dashboard. Demo changes stay in this
-                browser.
+                CR, Teacher and DoAA/DoSAA can preview dashboards without a backend. Changes stay in
+                this browser. Students should sign in above with their issued account.
               </p>
               <ul className="mt-3 space-y-2">
-                {DEMO_ACCOUNTS.map((account) => (
+                {visibleDemoAccounts().map((account) => (
                   <li
                     key={account.email}
                     className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2"

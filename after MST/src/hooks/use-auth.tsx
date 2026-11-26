@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AUTH_EVENT, api, type AuthUser } from "@/lib/api";
-import { DEMO_EVENT, loadDemoAccount, type DemoAccount } from "@/lib/demo";
+import { DEMO_EVENT, loadVisibleDemoAccount, type DemoAccount } from "@/lib/demo";
 import { DEMO_ROLES_EVENT, demoRolesForAccount } from "@/lib/demo-roles";
 import { ensureDemoData } from "@/lib/seed";
 import type { AppRole } from "@/lib/status";
@@ -17,22 +17,22 @@ function demoUser(account: DemoAccount): AuthUser {
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
-  const [ready, setReady] = useState(() => !!loadDemoAccount());
-  const [demo, setDemo] = useState<DemoAccount | null>(() => loadDemoAccount());
+  const [ready, setReady] = useState(() => !!loadVisibleDemoAccount());
+  const [demo, setDemo] = useState<DemoAccount | null>(() => loadVisibleDemoAccount());
   const [demoRoles, setDemoRoles] = useState<AppRole[]>(() => {
-    const account = loadDemoAccount();
+    const account = loadVisibleDemoAccount();
     return account ? demoRolesForAccount(account) : [];
   });
 
   useEffect(() => {
-    const boot = loadDemoAccount();
+    const boot = loadVisibleDemoAccount();
     if (boot) ensureDemoData();
     setDemo(boot);
     setDemoRoles(boot ? demoRolesForAccount(boot) : []);
 
     let cancelled = false;
     const load = async () => {
-      if (loadDemoAccount()) {
+      if (loadVisibleDemoAccount()) {
         if (!cancelled) setReady(true);
         return;
       }
@@ -48,7 +48,7 @@ export function useAuth() {
       void load();
     };
     const refreshDemo = () => {
-      const account = loadDemoAccount();
+      const account = loadVisibleDemoAccount();
       if (account) ensureDemoData();
       setDemo(account);
       setDemoRoles(account ? demoRolesForAccount(account) : []);
@@ -61,7 +61,7 @@ export function useAuth() {
       }
     };
     const refreshDemoRoles = () => {
-      const account = loadDemoAccount();
+      const account = loadVisibleDemoAccount();
       if (account) setDemoRoles(demoRolesForAccount(account));
     };
     window.addEventListener(AUTH_EVENT, onAuth);

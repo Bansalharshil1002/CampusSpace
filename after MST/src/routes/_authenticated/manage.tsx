@@ -18,13 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
-import { loadDemoAccount } from "@/lib/demo";
+import { loadVisibleDemoAccount } from "@/lib/demo";
 import { DEFAULT_CAMPUS_ROOMS, normalizeRoomCode, roomKindLabel } from "@/lib/rooms";
 import { ROLE_LABEL, ROOM_TYPE_LABEL, timeAgo, type AppRole, type RoomType } from "@/lib/status";
 
 export const Route = createFileRoute("/_authenticated/manage")({
   beforeLoad: () => {
-    if (loadDemoAccount()) throw redirect({ to: "/" });
+    if (loadVisibleDemoAccount()) throw redirect({ to: "/" });
   },
   head: () => ({
     meta: [

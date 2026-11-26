@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     allow_public_registration: bool = True
     allow_email_auth: bool = True
     allow_dev_auth: bool = True
+    allow_password_reset: bool = True
     email_backend: str = "console"
     resend_api_key: str = ""
     email_from: str = "Room Status Tracker <noreply@thapar.edu>"

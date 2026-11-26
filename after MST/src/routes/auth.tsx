@@ -4,6 +4,7 @@ import { KeyRound } from "lucide-react";
 import { ALLOWED_EMAIL_DOMAIN, emailError } from "@/lib/auth-domain";
 import {
   allowEmailAuth,
+  allowPasswordReset,
   allowRegistration,
   deploymentNotice,
   showLocalDemo,
@@ -43,12 +44,12 @@ export const Route = createFileRoute("/auth")({
 });
 
 type Tab = "signin" | "signup" | "code";
-type ResetState = { email: string; token: string };
+type ResetState = { email: string; code: string };
 
 function friendlyAuthError(message: string): string {
   if (/invalid login credentials|wrong email or password/i.test(message)) {
-    return allowEmailAuth
-      ? "Wrong email or password. If you have not set a password yet, use “Forgot password” to create one."
+    return allowPasswordReset
+      ? "Wrong email or password. Use “Forgot password?” to reset it by email code."
       : "Wrong email or password.";
   }
   if (/already registered|already has an account/i.test(message)) {
@@ -68,14 +69,13 @@ function readParams(): URLSearchParams {
   return new URLSearchParams(window.location.search);
 }
 
-/** Read `?magic=`, `?reset=`, `?email=` and `?demo=` once, before any redirect. */
+/** Read `?magic=`, `?email=` and `?demo=` once, before any redirect. */
 function initialLinkState() {
   const params = readParams();
   const demoKey = (params.get("demo") ?? "").trim().toLowerCase();
   return {
     demoKey: demoKey || null,
     magic: params.get("magic"),
-    reset: params.get("reset"),
     email: params.get("email") ?? "",
   };
 }
@@ -90,9 +90,7 @@ function AuthPage() {
   const [confirm, setConfirm] = useState("");
   const [code, setCode] = useState("");
   const [codeSentTo, setCodeSentTo] = useState<string | null>(null);
-  const [reset, setReset] = useState<ResetState | null>(
-    link.reset ? { email: link.email, token: link.reset } : null,
-  );
+  const [reset, setReset] = useState<ResetState | null>(null);
   const [hint, setHint] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [emailMsg, setEmailMsg] = useState<string | null>(null);
@@ -144,16 +142,6 @@ function AuthPage() {
             ),
           );
         });
-      return;
-    }
-
-    if (link.reset) {
-      if (!allowEmailAuth) {
-        setEmailMsg(
-          "Password reset is unavailable in this controlled demo. Ask the administrator to reset your password.",
-        );
-      }
-      setBusy(false);
       return;
     }
 
@@ -246,19 +234,23 @@ function AuthPage() {
     const clean = validatedEmail();
     if (!clean) return;
     setBusy(true);
+    setEmailMsg(null);
     setNotice(null);
     try {
       const result = await api.forgotPassword(clean);
       setBusy(false);
-      toast.success("Reset instructions ready");
-      if (result.dev_token) {
-        setReset({ email: clean, token: result.dev_token });
-        setPassword("");
-        setConfirm("");
-        setHint("The local backend printed a reset token, so you can set a new password now.");
-      } else {
-        setNotice("Check your email for the reset link, then choose a new password here.");
-      }
+      toast.success("Reset code sent");
+      setReset({
+        email: clean,
+        code: result.dev_code ?? "",
+      });
+      setPassword("");
+      setConfirm("");
+      setHint(
+        result.dev_code
+          ? `Local backend code: ${result.dev_code} (valid for 15 minutes).`
+          : "Enter the six-digit code from your email, then choose a new password.",
+      );
     } catch (error) {
       setBusy(false);
       setEmailMsg(
@@ -345,6 +337,10 @@ function AuthPage() {
       setEmailMsg(`Enter your @${ALLOWED_EMAIL_DOMAIN} email address.`);
       return;
     }
+    if (!/^\d{6}$/.test(reset.code.trim())) {
+      setEmailMsg("Enter the six-digit code from your email.");
+      return;
+    }
     if (password.length < 8) {
       setEmailMsg("Use at least 8 characters for the new password.");
       return;
@@ -356,7 +352,12 @@ function AuthPage() {
     setBusy(true);
     setEmailMsg(null);
     try {
-      await api.resetPassword({ email: clean, token: reset.token, password });
+      await api.resetPassword({
+        email: clean,
+        code: reset.code.trim(),
+        password,
+        confirmPassword: confirm,
+      });
     } catch (error) {
       setBusy(false);
       setEmailMsg(
@@ -408,12 +409,19 @@ function AuthPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="reset-token">Reset token</Label>
+                <Label htmlFor="reset-code">6-digit code from email</Label>
                 <Input
-                  id="reset-token"
-                  value={reset.token}
-                  onChange={(e) => setReset({ ...reset, token: e.target.value })}
-                  className="font-mono text-xs"
+                  id="reset-code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  maxLength={6}
+                  value={reset.code}
+                  onChange={(e) => {
+                    setReset({ ...reset, code: e.target.value.replace(/\D/g, "") });
+                    setEmailMsg(null);
+                  }}
+                  className="font-mono tracking-widest"
                   required
                 />
               </div>
@@ -509,7 +517,7 @@ function AuthPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <Label htmlFor="signin-password">Password</Label>
-                      {allowEmailAuth && (
+                      {allowPasswordReset && (
                         <button
                           type="button"
                           className="text-xs text-muted-foreground underline"

@@ -20,6 +20,7 @@ function envBool(key: string, fallback: boolean): boolean {
 export const authMode: AuthMode = envValue("VITE_AUTH_MODE") === "full" ? "full" : "password";
 export const allowEmailAuth = envBool("VITE_ALLOW_EMAIL_AUTH", authMode === "full");
 export const allowRegistration = envBool("VITE_ALLOW_REGISTRATION", authMode === "full");
+export const allowPasswordReset = envBool("VITE_ALLOW_PASSWORD_RESET", true);
 export const showLocalDemo = envBool("VITE_SHOW_LOCAL_DEMO", true);
 
 /** Production shows staff preview roles only; students sign in for real. */

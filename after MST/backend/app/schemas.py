@@ -39,8 +39,9 @@ class ResetRequestIn(BaseModel):
 
 class ResetPasswordIn(BaseModel):
     email: EmailStr
-    token: str
+    code: str = Field(min_length=6, max_length=6)
     password: str = Field(min_length=8, max_length=128)
+    confirm_password: str = Field(min_length=8, max_length=128)
 
 
 class PasswordChangeIn(BaseModel):

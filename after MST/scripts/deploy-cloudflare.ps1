@@ -15,6 +15,7 @@ $env:VITE_API_URL = $ApiUrl.TrimEnd("/")
 $env:VITE_AUTH_MODE = "password"
 $env:VITE_ALLOW_EMAIL_AUTH = "false"
 $env:VITE_ALLOW_REGISTRATION = "false"
+$env:VITE_ALLOW_PASSWORD_RESET = "true"
 $env:VITE_SHOW_LOCAL_DEMO = "true"
 $env:VITE_DEMO_ROLES = "cr,teacher,admin"
 $env:VITE_DEPLOYMENT_MODE = "controlled-demo"

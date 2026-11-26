@@ -214,10 +214,15 @@ export const api = {
       body: JSON.stringify({ email }),
     });
   },
-  resetPassword(input: { email: string; token: string; password: string }) {
+  resetPassword(input: { email: string; code: string; password: string; confirmPassword: string }) {
     return request<{ ok: boolean }>("/auth/reset-password", {
       method: "POST",
-      body: JSON.stringify(input),
+      body: JSON.stringify({
+        email: input.email,
+        code: input.code,
+        password: input.password,
+        confirm_password: input.confirmPassword,
+      }),
     });
   },
   requestMagic(email: string) {

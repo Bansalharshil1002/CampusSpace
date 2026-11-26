@@ -255,16 +255,30 @@ def forgot_password(
     db: Session = Depends(get_db),
     _rate_limit: None = Depends(enforce_auth_rate_limit),
 ):
-    require_email_auth()
+    """Send a six-digit reset code. Deliberately independent of email sign-in."""
+    if not settings.allow_password_reset:
+        raise HTTPException(status_code=403, detail="Password reset is not available.")
+    if settings.email_backend == "disabled" or (
+        settings.email_backend == "resend" and not settings.resend_api_key
+    ):
+        raise HTTPException(status_code=503, detail="Password reset email is not configured.")
     email = require_college(body.email)
     user = db.query(User).filter(User.email == email, User.active.is_(True)).one_or_none()
-    token = random_token()
+    dev = None
     if user:
-        issue_challenge(db, email, "password_reset", token, hours=2)
-        url = f"{settings.frontend_url}/auth?reset={token}&email={email}"
-        send_email(email, "Reset your Room Status Tracker password", f"Reset token: {token}\nOpen: {url}")
-    dev = token if user and dev_details_enabled() else None
-    return ChallengeOut(message="If that account exists, a reset email has been sent.", dev_token=dev)
+        code = random_otp()
+        issue_challenge(db, email, "password_reset", code, hours=0.25)
+        send_email(
+            email,
+            "Your Room Status Tracker password reset code",
+            f"Your password reset code is {code}. It expires in 15 minutes. "
+            "If you did not request this, ignore this email.",
+        )
+        dev = code if dev_details_enabled() else None
+    return ChallengeOut(
+        message="If an account exists for that email, a six-digit code has been sent.",
+        dev_code=dev,
+    )
 
 
 @router.post("/reset-password")
@@ -273,8 +287,15 @@ def reset_password(
     db: Session = Depends(get_db),
     _rate_limit: None = Depends(enforce_auth_rate_limit),
 ):
-    require_email_auth()
+    if not settings.allow_password_reset:
+        raise HTTPException(status_code=403, detail="Password reset is not available.")
     email = require_college(body.email)
+    if body.password != body.confirm_password:
+        raise HTTPException(status_code=400, detail="The two passwords do not match.")
+    code = body.code.strip()
+    if len(code) != 6 or not code.isdigit():
+        raise HTTPException(status_code=400, detail="Enter the six-digit code from your email.")
+
     rows = (
         db.query(EmailChallenge)
         .filter(
@@ -284,13 +305,23 @@ def reset_password(
         )
         .all()
     )
-    match = next((item for item in rows if verify_secret(body.token, item.secret_hash) and challenge_alive(item.expires_at)), None)
+    match = next(
+        (
+            item
+            for item in rows
+            if challenge_alive(item.expires_at) and verify_secret(code, item.secret_hash)
+        ),
+        None,
+    )
     if match is None:
-        raise HTTPException(status_code=400, detail="That reset link is invalid or has expired.")
-    user = db.query(User).filter(User.email == email).one_or_none()
+        raise HTTPException(status_code=400, detail="That code is invalid or has expired.")
+    user = db.query(User).filter(User.email == email, User.active.is_(True)).one_or_none()
     if user is None:
         raise HTTPException(status_code=400, detail="No active user with that email.")
-    match.consumed = True
+
+    # Consume the used code and invalidate any older codes for this email.
+    for item in rows:
+        item.consumed = True
     user.password_hash = hash_secret(body.password)
     db.commit()
     return {"ok": True}

@@ -308,14 +308,42 @@ def test_password_reset_round_trip():
 
     requested = client.post("/auth/forgot-password", json={"email": email})
     assert requested.status_code == 200, requested.text
-    token = requested.json()["dev_token"]
-    assert token
+    code = requested.json()["dev_code"]
+    assert code and len(code) == 6 and code.isdigit()
+
+    mismatch = client.post(
+        "/auth/reset-password",
+        json={
+            "email": email,
+            "code": code,
+            "password": "newpass123",
+            "confirm_password": "different123",
+        },
+    )
+    assert mismatch.status_code == 400
 
     reset = client.post(
         "/auth/reset-password",
-        json={"email": email, "token": token, "password": "newpass123"},
+        json={
+            "email": email,
+            "code": code,
+            "password": "newpass123",
+            "confirm_password": "newpass123",
+        },
     )
     assert reset.status_code == 200, reset.text
+
+    # The code is single use even if the first attempt succeeded.
+    repeated = client.post(
+        "/auth/reset-password",
+        json={
+            "email": email,
+            "code": code,
+            "password": "another123",
+            "confirm_password": "another123",
+        },
+    )
+    assert repeated.status_code == 400
 
     old = client.post("/auth/login", json={"email": email, "password": "oldpass123"})
     assert old.status_code == 400

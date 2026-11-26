@@ -29,10 +29,16 @@ services:
         value: "false"
       - key: ALLOW_EMAIL_AUTH
         value: "false"
+      - key: ALLOW_PASSWORD_RESET
+        value: "true"
       - key: ALLOW_DEV_AUTH
         value: "false"
       - key: EMAIL_BACKEND
-        value: disabled
+        value: resend
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
       - key: SEED_DEMO_USERS
         value: "false"
       - key: AUTH_RATE_LIMIT_PER_MINUTE

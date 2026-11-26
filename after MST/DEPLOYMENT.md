@@ -32,10 +32,10 @@ Render Blueprints require the code to be in a Git repository. The project is com
    - `room-status-tracker-api` (Docker web service)
    - `room-status-tracker-db` (Postgres)
 7. During setup, Render prompts for two values because they are marked `sync: false`. Set both to the expected Worker URL:
-   - `FRONTEND_URL` = `https://room-status-tracker.workers.dev`
-   - `CORS_ORIGINS` = `https://room-status-tracker.workers.dev`
+   - `FRONTEND_URL` = the final Worker URL printed by Wrangler
+   - `CORS_ORIGINS` = the same final Worker URL
 
-   If Wrangler later reports a different Worker URL, update these values in the service’s **Environment** tab and click **Manual Deploy → Deploy latest commit**.
+   For this deployment the Cloudflare account already has the `ssingh38-be24` workers.dev subdomain, so the Worker URL is `https://room-status-tracker.ssingh38-be24.workers.dev`. Use that URL for both values. If your account uses a different subdomain, update these values in the service’s **Environment** tab and click **Save, rebuild, and deploy**.
 8. Wait for the first deploy. The Docker command runs `alembic upgrade head`, then starts Uvicorn.
 9. Confirm `GET https://YOUR-API-URL.onrender.com/health` returns:
 

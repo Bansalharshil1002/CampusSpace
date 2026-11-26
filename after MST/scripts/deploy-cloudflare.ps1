@@ -36,5 +36,13 @@ if (-not $env:CLOUDFLARE_ACCOUNT_ID) {
   throw "CLOUDFLARE_ACCOUNT_ID is not set. Create .env.deployment.local with CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID."
 }
 
+# Nitro writes this deploy config at the project root, but Wrangler runs from
+# .output/server. Remove it so Wrangler uses the generated wrangler.json there.
+$projectRoot = Split-Path $PSScriptRoot -Parent
+$generatedDeployConfig = Join-Path $projectRoot ".wrangler\deploy\config.json"
+if (Test-Path $generatedDeployConfig) {
+  Remove-Item $generatedDeployConfig -Force
+}
+
 npx.cmd wrangler --cwd .output/server deploy
 if ($LASTEXITCODE -ne 0) { throw "Cloudflare deploy failed" }

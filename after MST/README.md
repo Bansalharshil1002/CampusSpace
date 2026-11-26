@@ -85,6 +85,6 @@ python -m pytest -q
 
 The hosted version is a controlled demo, not a public campus rollout. Students sign in with real database password accounts. CR, Teacher and DoAA/DoSAA use browser-local preview buttons, so their demo changes are not shared with students. Public registration, OTP, magic links, and password reset are disabled.
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full Render + Cloudflare deployment and account bootstrap steps.
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full Render + Cloudflare deployment and account bootstrap steps. See [TEST-CASES.md](./TEST-CASES.md) for the detailed verification cases.
 
 For local development, keep the existing `.env` values. Production builds use the variables in `.env.production.example`.

@@ -345,10 +345,11 @@ function Dashboard() {
           announcements={announcements}
           unread={unread.length}
           onOpenRoom={setOpenId}
+          isDemo={isDemo}
         />
 
         {roleKey === "admin" && (
-          <section className="mb-6 rounded-xl border bg-card p-5 shadow-card">
+          <section id="manage" className="mb-6 rounded-xl border bg-card p-5 shadow-card">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <div>
                 <h2 className="text-lg font-semibold">Assign roles by email</h2>
@@ -559,6 +560,7 @@ interface RolePanelProps {
   announcements: ReturnType<typeof useAnnouncements>["visible"];
   unread: number;
   onOpenRoom: (id: string) => void;
+  isDemo?: boolean;
 }
 
 function RolePanel({
@@ -574,6 +576,7 @@ function RolePanel({
   announcements,
   unread,
   onOpenRoom,
+  isDemo = false,
 }: RolePanelProps) {
   const [showAllClasses, setShowAllClasses] = useState(false);
   const dayLabel = WEEKDAY_LABEL[now.getDay() as keyof typeof WEEKDAY_LABEL];
@@ -707,7 +710,7 @@ function RolePanel({
         )}
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <RoleActions role={role} />
+          <RoleActions role={role} isDemo={isDemo} />
         </div>
       </div>
 
@@ -766,7 +769,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function RoleActions({ role }: { role: AppRole }) {
+function RoleActions({ role, isDemo = false }: { role: AppRole; isDemo?: boolean }) {
   return (
     <>
       {role === "student" && (
@@ -817,7 +820,9 @@ function RoleActions({ role }: { role: AppRole }) {
       {role === "admin" && (
         <>
           <Button size="sm" asChild>
-            <Link to="/manage">Manage rooms & roles</Link>
+            <Link to={isDemo ? "/" : "/manage"} {...(isDemo ? { hash: "manage" } : {})}>
+              Manage rooms & roles
+            </Link>
           </Button>
           <Button size="sm" variant="outline" asChild>
             <Link to="/announcements">Post a notice</Link>

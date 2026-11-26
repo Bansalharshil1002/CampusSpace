@@ -93,9 +93,10 @@ export function SiteHeader() {
                   Messages
                 </Link>
               )}
-              {top && top !== "student" && !isDemo && (
+              {top && top !== "student" && (
                 <Link
-                  to="/manage"
+                  to={isDemo ? "/" : "/manage"}
+                  {...(isDemo ? { hash: "manage" } : {})}
                   className="shrink-0 rounded px-2.5 py-1.5 opacity-80 hover:opacity-100 sm:px-3"
                   activeProps={{ className: "bg-ink-foreground/10 opacity-100" }}
                 >

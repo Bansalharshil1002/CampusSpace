@@ -77,7 +77,7 @@ Students use real database password accounts. CR, Teacher and DoAA/DoSAA use bro
 | --- | --- | --- | --- |
 | 1 | Open `/auth` | College email and password fields are visible | Fields were visible |
 | 2 | Look for email-code, magic-link and create-account tabs | None are visible | None were visible |
-| 3 | Look for the “Forgot password?” link | The link is visible on the password form | Local build verified; production deployment pending |
+| 3 | Look for the “Forgot password?” link | The link is visible on the password form | Passed on deployed Worker |
 
 **Final Expected Result:** Only password sign-in is available to students.  
 **Final Actual Result:** Passed.  
@@ -371,7 +371,7 @@ Students use real database password accounts. CR, Teacher and DoAA/DoSAA use bro
 | Step | Action | Expected Result | Actual Result |
 | --- | --- | --- | --- |
 | 1 | Inspect backend email settings | `EMAIL_BACKEND=resend` with a verified non-official `EMAIL_FROM` | Pending Render Environment configuration |
-| 2 | Inspect sign-in page | No OTP sign-in or magic-link sign-in; “Forgot password?” is present | Local build verified; production deployment pending |
+| 2 | Inspect sign-in page | No OTP sign-in or magic-link sign-in; “Forgot password?” is present | Verified on deployed Worker |
 | 3 | Inspect staff preview accounts | They are browser-local only | Verified |
 | 4 | Inspect role assignment | No Society Representative role | Verified |
 
@@ -389,7 +389,7 @@ Students use real database password accounts. CR, Teacher and DoAA/DoSAA use bro
 
 | Step | Action | Expected Result | Actual Result |
 | --- | --- | --- | --- |
-| 1 | Open `/auth` while signed out | “Forgot password?” is visible beside the password field | Local build verified; production deployment pending |
+| 1 | Open `/auth` while signed out | “Forgot password?” is visible beside the password field | Passed on deployed Worker |
 | 2 | Enter an issued student email and click “Forgot password?” | Generic confirmation is shown; a six-digit code is emailed | Local automated test passed; live email pending Render Environment |
 | 3 | Open the reset form and enter an incorrect six-digit code | The code is rejected | Local automated test passed |
 | 4 | Enter the valid code, new password and matching confirm password | “Password updated” is shown and the form returns to sign-in | Local automated test passed |
@@ -418,6 +418,7 @@ Students use real database password accounts. CR, Teacher and DoAA/DoSAA use bro
 | Cross-browser isolation | Pending separate-profile check |
 | Console errors | Pass |
 | Auth hardening configuration | Pass |
+| “Forgot password?” visibility | Pass |
 | Email-code password reset | Pending production email configuration |
 
 Software Engineering – Dr Ghazy Assassa
